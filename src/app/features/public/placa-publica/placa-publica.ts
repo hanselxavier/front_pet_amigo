@@ -7,6 +7,7 @@ import { GalleriaModule } from 'primeng/galleria';
 import { PlacaPublicaService } from '../../../core/services/placa-publica.service';
 import { PlacaPublicaResponse } from '../../../core/models/placa-publica.model';
 import { ChatStorageService } from '../../../core/services/chat-storage.service';
+import { ChatGuestService } from '../../../core/services/chat-guest.service';
 
 @Component({
   selector: 'app-placa-publica',
@@ -19,6 +20,7 @@ export class PlacaPublica implements OnInit {
   private router = inject(Router);
   private placaService = inject(PlacaPublicaService);
   private chatStorage = inject(ChatStorageService);
+  private chatGuestService = inject(ChatGuestService);
 
   info = signal<PlacaPublicaResponse | null>(null);
   cargando = signal(true);
@@ -63,20 +65,43 @@ export class PlacaPublica implements OnInit {
   }
 
   irAChat(): void {
-    const data = this.info();
-    if (!data?.estaPerdida) return;
+  const data = this.info();
+  if (!data?.estaPerdida) return;
 
-    // Si ya existe un chat guardado para este QR, retómalo directo
-    const tokenGuardado = this.chatStorage.obtenerToken(this.codigoQr);
-    if (tokenGuardado) {
-      this.router.navigate(['/chat', tokenGuardado]);
-      return;
-    }
+  const tokenGuardado = this.chatStorage.obtenerToken(this.codigoQr);
 
-    this.router.navigate(['/reportar-encontrado'], {
-      queryParams: { reportePerdidaId: data.reportePerdidaId, codigoQr: this.codigoQr },
+  if (tokenGuardado) {
+    // Verifica que el chat guardado siga activo y pertenezca al reporte actual
+    this.chatGuestService.obtenerPorToken(tokenGuardado).subscribe({
+      next: (chat) => {
+        const perteneceAlReporteActual = chat.reportePerdidaId === data.reportePerdidaId;
+        const estaActivo = chat.estado === 'activo';
+
+        if (perteneceAlReporteActual && estaActivo) {
+          this.router.navigate(['/chat', tokenGuardado]);
+        } else {
+          // Chat viejo/cerrado: lo descartamos y vamos al formulario nuevo
+          this.chatStorage.eliminarToken(this.codigoQr);
+          this.irAFormularioNuevo(data.reportePerdidaId);
+        }
+      },
+      error: () => {
+        // El chat ya no existe o dio error: igual lo descartamos
+        this.chatStorage.eliminarToken(this.codigoQr);
+        this.irAFormularioNuevo(data.reportePerdidaId);
+      },
     });
+    return;
   }
+
+  this.irAFormularioNuevo(data.reportePerdidaId);
+}
+
+private irAFormularioNuevo(reportePerdidaId: number): void {
+  this.router.navigate(['/reportar-encontrado'], {
+    queryParams: { reportePerdidaId, codigoQr: this.codigoQr },
+  });
+}
 
   seleccionarFoto(index: number): void {
     this.fotoActivaIndex.set(index);
