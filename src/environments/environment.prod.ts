@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://tu-api-en-railway.up.railway.app',
+  apiUrl: 'apipetamigo-production.up.railway.app',
 };
