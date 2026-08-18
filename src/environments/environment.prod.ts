@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'apipetamigo-production.up.railway.app',
-  frontendUrl: 'petamigogt.netlify.app'
+  apiUrl: 'https://apipetamigo-production.up.railway.app',
+  frontendUrl: 'https://petamigogt.netlify.app'
 };
