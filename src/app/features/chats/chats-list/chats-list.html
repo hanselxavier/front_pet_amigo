@@ -1,0 +1,69 @@
+<!-- chats-list.html -->
+<div class="card grid grid-cols-1 md:grid-cols-3 gap-4" style="min-height: 70vh">
+  <!-- Lista de chats -->
+  <div class="md:col-span-1 border-r border-surface-200 dark:border-surface-700 pr-4">
+    <h5 class="mb-4">Mis conversaciones</h5>
+
+    @if (cargando()) {
+      <div class="text-center py-8">
+        <i class="pi pi-spin pi-spinner text-2xl"></i>
+      </div>
+    } @else if (chats().length === 0) {
+      <p class="text-muted-color text-center py-8">No tienes conversaciones todavía.</p>
+    } @else {
+      <div class="flex flex-col gap-2">
+        @for (chat of chats(); track chat.id) {
+          <div
+            class="p-3 rounded-lg cursor-pointer border transition-colors"
+            [ngClass]="{
+              'border-primary bg-primary-50 dark:bg-primary-950':
+                chatSeleccionado()?.id === chat.id,
+              'border-surface-200 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800':
+                chatSeleccionado()?.id !== chat.id,
+            }"
+            (click)="abrir(chat)"
+          >
+            <div class="flex items-center justify-between">
+              <span class="font-medium">{{
+                chat.reportePerdida?.mascota?.nombre ?? 'Mascota'
+              }}</span>
+              @if (chat.estado === EstadoChat.CERRADO) {
+                <p-tag value="Cerrado" severity="secondary" />
+              } @else {
+                <p-tag value="Activo" severity="success" />
+              }
+            </div>
+           @if (esAdmin()) {
+  @if (duenoDe(chat); as dueno) {
+    <p class="text-xs text-muted-color mt-0.5">
+      Dueño: {{ dueno.nombre }} {{ dueno.apellido }}
+    </p>
+  }
+}
+            <p class="text-sm text-muted-color mt-1">Contacto: {{ chat.contactoNombre }}</p>
+            <div class="flex justify-end mt-1">
+              <p-button
+                icon="pi pi-inbox"
+                [text]="true"
+                size="small"
+                pTooltip="Archivar"
+                (onClick)="archivar(chat, $event)"
+              />
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Conversación -->
+  <div class="md:col-span-2">
+    @if (chatSeleccionado(); as chat) {
+      <app-chat-conversacion [chat]="chat" (mensajeEnviado)="cargar()" />
+    } @else {
+      <div class="h-full flex items-center justify-center text-muted-color">
+        Selecciona una conversación para ver los mensajes
+      </div>
+    }
+  </div>
+</div>

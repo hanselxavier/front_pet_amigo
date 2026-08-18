@@ -1,0 +1,31 @@
+.placa-frame {
+  position: relative;
+  border-radius: 16px;
+  border: 2px solid #A8791A;
+  overflow: hidden;
+
+  img {
+    display: block;
+  }
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #A8791A;
+    z-index: 1;
+  }
+
+  &::before {
+    top: 6px;
+    left: 6px;
+  }
+
+  &::after {
+    bottom: 6px;
+    right: 6px;
+  }
+}

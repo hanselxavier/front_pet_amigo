@@ -1,0 +1,78 @@
+<div class="flex flex-col gap-3">
+  <div class="flex items-center justify-between">
+    <label class="font-medium">Fotos ({{ fotos().length }}/5)</label>
+
+    @if (puedeAgregarMas) {
+      <label class="cursor-pointer">
+        <input
+          type="file"
+          accept="image/*"
+          class="hidden"
+          (change)="seleccionarArchivo($event)"
+          [disabled]="subiendo()"
+        />
+        <span class="p-button p-button-sm p-button-outlined flex items-center gap-2 px-3 py-2">
+          @if (subiendo()) {
+            <i class="pi pi-spin pi-spinner"></i>
+          } @else {
+            <i class="pi pi-upload"></i>
+          }
+          Agregar foto
+        </span>
+      </label>
+    }
+  </div>
+
+  @if (error()) {
+    <small class="text-red-500">{{ error() }}</small>
+  }
+
+  @if (cargando()) {
+    <div class="text-center py-4">
+      <i class="pi pi-spin pi-spinner"></i>
+    </div>
+  } @else if (fotos().length === 0) {
+    <p class="text-muted-color text-sm">Aún no hay fotos. Agrega la primera.</p>
+  } @else {
+    <div class="grid grid-cols-3 gap-3">
+      @for (foto of fotos(); track foto.id) {
+        <div class="relative group">
+          <div
+            class="placa-frame"
+            style="width: 100%; height: 96px"
+            [style.border-color]="foto.esPrincipal ? '#A8791A' : '#DDE2DE'"
+          >
+            <img [src]="foto.urlFoto" class="w-full h-full object-cover" />
+          </div>
+          @if (foto.esPrincipal) {
+            <span
+              class="absolute top-1 left-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full"
+            >
+              Principal
+            </span>
+          }
+          <div
+            class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity rounded-lg flex items-center justify-center gap-1"
+          >
+            @if (!foto.esPrincipal) {
+              <button
+                pTooltip="Marcar principal"
+                class="p-button p-button-rounded p-button-text p-button-sm text-white"
+                (click)="marcarPrincipal(foto)"
+              >
+                <i class="pi pi-star"></i>
+              </button>
+            }
+            <button
+              pTooltip="Eliminar"
+              class="p-button p-button-rounded p-button-text p-button-sm text-white"
+              (click)="eliminar(foto)"
+            >
+              <i class="pi pi-trash"></i>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

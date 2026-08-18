@@ -1,0 +1,71 @@
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+  <div class="card flex flex-col items-center py-5">
+    <span class="text-muted-color text-sm">Activos</span>
+    <span class="text-3xl font-bold text-red-500 mt-1">{{ totalActivos() }}</span>
+  </div>
+  <div class="card flex flex-col items-center py-5">
+    <span class="text-muted-color text-sm">Recuperados</span>
+    <span class="text-3xl font-bold text-green-500 mt-1">{{ totalRecuperados() }}</span>
+  </div>
+  <div class="card flex flex-col items-center py-5">
+    <span class="text-muted-color text-sm">Cancelados</span>
+    <span class="text-3xl font-bold text-surface-500 mt-1">{{ totalCancelados() }}</span>
+  </div>
+  <div class="card flex flex-col items-center py-5">
+    <span class="text-muted-color text-sm">Tiempo prom. resolución</span>
+    <span class="text-3xl font-bold text-primary mt-1">
+      {{ tiempoPromedioResolucion() !== null ? tiempoPromedioResolucion() + 'h' : '—' }}
+    </span>
+  </div>
+</div>
+
+<div class="card">
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="start">
+      <h5 class="m-0">{{ esAdmin() ? 'Todos los reportes' : 'Mis reportes' }}</h5>
+    </ng-template>
+  </p-toolbar>
+
+  <p-table [value]="reportes()" [loading]="cargando()" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Mascota</th>
+        @if (esAdmin()) {
+          <th>Dueño</th>
+        }
+        <th>Teléfono</th>
+        <th>Reportado</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-reporte>
+      <tr>
+        <td>{{ reporte.mascota?.nombre }}</td>
+        @if (esAdmin()) {
+          <td>{{ reporte.usuario?.nombre }} {{ reporte.usuario?.apellido }}</td>
+        }
+        <td>{{ reporte.telefonoContacto }}</td>
+        <td>{{ reporte.fechaReporte | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          <p-tag [severity]="severidadEstado(reporte.estado)" [value]="reporte.estado" styleClass="capitalize" />
+        </td>
+        <td class="flex gap-2 justify-end">
+          <p-button label="Ver detalle" icon="pi pi-eye" [text]="true" (onClick)="verDetalle(reporte)" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="esAdmin() ? 6 : 5" class="text-center py-6">No hay reportes todavía.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<app-reporte-detalle-dialog
+  [visible]="mostrarDetalle()"
+  (visibleChange)="mostrarDetalle.set($event)"
+  [reporte]="reporteSeleccionado()"
+  (actualizado)="alActualizarDetalle()"
+/>

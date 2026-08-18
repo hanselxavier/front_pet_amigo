@@ -1,0 +1,43 @@
+<p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '28rem' }" header="Nuevo usuario" (onHide)="cerrar()">
+  <div class="flex flex-col gap-4">
+    @if (error()) {
+      <p-message severity="error" [text]="error()!" />
+    }
+
+    <div class="flex gap-4">
+      <div class="flex-1">
+        <label class="block font-medium mb-2">Nombre</label>
+        <input pInputText [(ngModel)]="form.nombre" class="w-full" />
+      </div>
+      <div class="flex-1">
+        <label class="block font-medium mb-2">Apellido</label>
+        <input pInputText [(ngModel)]="form.apellido" class="w-full" />
+      </div>
+    </div>
+
+    <div>
+      <label class="block font-medium mb-2">Email</label>
+      <input pInputText [(ngModel)]="form.email" class="w-full" />
+    </div>
+
+    <div>
+      <label class="block font-medium mb-2">Contraseña</label>
+      <p-password [(ngModel)]="form.password" [toggleMask]="true" [feedback]="false" styleClass="w-full" [fluid]="true" />
+    </div>
+
+    <div>
+      <label class="block font-medium mb-2">Teléfono</label>
+      <input pInputText [(ngModel)]="form.telefono" class="w-full" />
+    </div>
+
+    <div>
+      <label class="block font-medium mb-2">Rol</label>
+      <p-select [options]="opcionesRol" [(ngModel)]="form.rol" optionLabel="label" optionValue="value" class="w-full" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="cerrar()" />
+    <p-button label="Crear" [loading]="guardando()" (onClick)="guardar()" />
+  </ng-template>
+</p-dialog>

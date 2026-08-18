@@ -1,0 +1,148 @@
+<div class="card">
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="start">
+      <h5 class="m-0">{{ esAdmin() ? 'Todas las placas' : 'Mis placas' }}</h5>
+    </ng-template>
+    <ng-template pTemplate="end">
+      <p-iconfield class="mr-2">
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          placeholder="Buscar..."
+          (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+        />
+      </p-iconfield>
+      @if (esAdmin()) {
+        <p-button label="Generar placa" icon="pi pi-plus" (onClick)="nuevaPlaca()" />
+      }
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="placas()"
+    [loading]="cargando()"
+    [paginator]="true"
+    [rows]="10"
+    [globalFilterFields]="['mascota.nombre', 'usuario.nombre', 'usuario.apellido']"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Código QR</th>
+        @if (esAdmin()) {
+          <th>Dueño</th>
+        }
+        <th>Mascota</th>
+        <th>Plan</th>
+        <th>Estado</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-placa>
+      <tr>
+        <td class="font-mono text-sm">{{ placa.codigoQr.substring(0, 8) }}...</td>
+        @if (esAdmin()) {
+          <td>{{ placa.usuario?.nombre }} {{ placa.usuario?.apellido }}</td>
+        }
+        <td>{{ placa.mascota?.nombre ?? '— Sin asignar —' }}</td>
+        <td>
+          <p-tag
+            [severity]="placa.plan === Plan.PRO ? 'success' : 'secondary'"
+            [value]="placa.plan === Plan.PRO ? 'PRO' : 'Básico'"
+          />
+        </td>
+        <td>
+          <p-tag
+            [severity]="severidadEstado(placa.estado)"
+            [value]="placa.estado"
+            styleClass="capitalize"
+          />
+        </td>
+        <td class="flex gap-2 justify-end">
+          @if (esAdmin() || placa.estado === EstadoPlaca.ENTREGADA) {
+            <p-button
+              icon="pi pi-qrcode"
+              [text]="true"
+              pTooltip="Ver QR"
+              (onClick)="verQr(placa)"
+            />
+          } @else {
+            <p-button
+              icon="pi pi-lock"
+              [text]="true"
+              [disabled]="true"
+              pTooltip="El QR estará disponible cuando tu placa sea entregada"
+            />
+          }
+
+          @if (esAdmin()) {
+            @if (placa.plan === Plan.BASICO) {
+              <p-button
+                icon="pi pi-arrow-up"
+                severity="success"
+                [text]="true"
+                pTooltip="Upgrade a PRO"
+                (onClick)="upgradeAPro(placa)"
+              />
+            }
+            @if (placa.estado === EstadoPlaca.ASIGNADA) {
+              <p-button
+                icon="pi pi-send"
+                severity="warn"
+                [text]="true"
+                pTooltip="Marcar enviada a grabado"
+                (onClick)="cambiarEstado(placa, EstadoPlaca.ENVIADA_GRABADO)"
+              />
+            }
+            @if (placa.estado === EstadoPlaca.ENVIADA_GRABADO) {
+              <p-button
+                icon="pi pi-check"
+                severity="success"
+                [text]="true"
+                pTooltip="Marcar entregada"
+                (onClick)="cambiarEstado(placa, EstadoPlaca.ENTREGADA)"
+              />
+            }
+            @if (esAdmin() && !placa.mascota) {
+              <p-button
+                icon="pi pi-heart"
+                severity="info"
+                [text]="true"
+                pTooltip="Asignar mascota"
+                (onClick)="asignarMascota(placa)"
+              />
+            }
+          }
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td [attr.colspan]="esAdmin() ? 6 : 5" class="text-center py-6">
+          No hay placas registradas todavía.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<app-placa-form
+  [visible]="mostrarFormulario()"
+  (visibleChange)="mostrarFormulario.set($event)"
+  (generado)="alGenerar()"
+/>
+
+<app-placa-qr-dialog
+  [visible]="mostrarQr()"
+  (visibleChange)="mostrarQr.set($event)"
+  [placa]="placaSeleccionada()"
+/>
+
+<app-asignar-mascota-dialog
+  [visible]="mostrarAsignar()"
+  (visibleChange)="mostrarAsignar.set($event)"
+  [placa]="placaParaAsignar()"
+  (asignado)="alAsignar()"
+/>

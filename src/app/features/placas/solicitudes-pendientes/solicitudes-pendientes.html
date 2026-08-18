@@ -1,0 +1,47 @@
+<div class="card">
+  <h5 class="mb-4">Solicitudes de placa pendientes</h5>
+
+  <p-table [value]="solicitudes()" [loading]="cargando()" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Mascota</th>
+        <th>Solicitante</th>
+        <th>Fecha</th>
+        <th>Notas</th>
+        <th>Plan</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-solicitud>
+      <tr>
+        <td>{{ solicitud.mascota?.nombre }}</td>
+        <td>{{ solicitud.usuario?.nombre }} {{ solicitud.usuario?.apellido }}</td>
+        <td>{{ solicitud.fechaSolicitud | date: 'dd/MM/yyyy' }}</td>
+        <td class="text-sm text-muted-color">{{ solicitud.notas || '—' }}</td>
+        <td style="width: 10rem">
+          <p-select [options]="opcionesPlan" [(ngModel)]="planElegido" optionLabel="label" optionValue="value" styleClass="w-full" />
+        </td>
+        <td class="flex gap-2 justify-end">
+          <p-button label="Aprobar" icon="pi pi-check" severity="success" size="small" (onClick)="aprobar(solicitud, planElegido)" />
+          <p-button label="Rechazar" icon="pi pi-times" severity="danger" size="small" [text]="true" (onClick)="abrirRechazo(solicitud)" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center py-6">No hay solicitudes pendientes.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<p-dialog [(visible)]="mostrarRechazo" [modal]="true" [style]="{ width: '26rem' }" header="Rechazar solicitud">
+  <div class="flex flex-col gap-3" style="min-height: 6rem">
+    <label class="font-medium">Motivo del rechazo</label>
+    <textarea pTextarea [(ngModel)]="motivoRechazo" rows="3" class="w-full"></textarea>
+  </div>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="mostrarRechazo.set(false)" />
+    <p-button label="Confirmar rechazo" severity="danger" (onClick)="confirmarRechazo()" />
+  </ng-template>
+</p-dialog>

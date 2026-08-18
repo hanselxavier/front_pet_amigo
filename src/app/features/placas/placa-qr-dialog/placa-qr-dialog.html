@@ -1,0 +1,15 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="cerrar()"
+  [modal]="true"
+  [style]="{ width: '24rem' }"
+  header="Código QR de la placa"
+>
+  @if (placa) {
+    <div class="flex flex-col items-center gap-4">
+      <app-qr-code-view [valor]="urlPublica" [tamano]="220" />
+      <p class="text-sm text-muted-color text-center break-all">{{ urlPublica }}</p>
+      <p-button label="Imprimir" icon="pi pi-print" (onClick)="imprimir()" />
+    </div>
+  }
+</p-dialog>

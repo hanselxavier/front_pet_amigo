@@ -1,0 +1,127 @@
+<!-- chat-guest.html -->
+<div class="min-h-screen bg-surface-50 dark:bg-surface-950 flex flex-col">
+
+  @if (cargando()) {
+    <div class="flex-1 flex items-center justify-center">
+      <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+    </div>
+  }
+
+  <!-- ============ MODO A: FORMULARIO PARA INICIAR CHAT ============ -->
+  @else if (reportePerdidaId && !chat()) {
+    <div class="flex-1 flex flex-col px-6 py-10 gap-6 max-w-md mx-auto w-full">
+      <div class="text-center">
+        <i class="pi pi-comment text-4xl text-primary mb-3"></i>
+        <h1 class="text-2xl font-bold">Contactar al dueño</h1>
+        <p class="text-muted-color mt-2">Déjale tus datos y un mensaje. No necesitas crear una cuenta.</p>
+      </div>
+
+      @if (errorInicio()) {
+        <p-message severity="error" [text]="errorInicio()!" />
+      }
+
+      <div>
+        <label class="block font-medium mb-2">Tu nombre</label>
+        <input pInputText [(ngModel)]="nombreForm" class="w-full" placeholder="Ej. Carlos" />
+      </div>
+
+      <div>
+        <label class="block font-medium mb-2">Tu teléfono</label>
+        <input pInputText [(ngModel)]="telefonoForm" class="w-full" placeholder="Ej. 50298765432" />
+      </div>
+
+      <div>
+        <label class="block font-medium mb-2">Mensaje</label>
+        <textarea
+          pTextarea
+          [(ngModel)]="mensajeForm"
+          rows="4"
+          class="w-full"
+          placeholder="Ej. Hola, creo que tengo a tu mascota, está en mi casa..."
+        ></textarea>
+      </div>
+
+      <p-button
+        label="Enviar mensaje"
+        icon="pi pi-send"
+        styleClass="w-full"
+        size="large"
+        [loading]="enviando()"
+        (onClick)="iniciarChat()"
+      />
+    </div>
+  }
+
+  <!-- ============ MODO B: CONVERSACIÓN EXISTENTE ============ -->
+  @else if (chat(); as chatActual) {
+    <div class="flex flex-col h-screen">
+      <div class="bg-primary text-white px-4 py-3 flex items-center gap-2">
+      <i class="pi pi-heart"></i>
+      <span class="font-semibold">{{ chatActual.reportePerdida?.mascota?.nombre ?? 'Chat' }}</span>
+      @if (chatCerrado()) {
+        <p-tag value="Cerrado" severity="secondary" styleClass="ml-auto" />
+      }
+    </div>
+
+    @if (!chatCerrado()) {
+      <div class="bg-yellow-50 dark:bg-yellow-950 px-4 py-3 flex items-center justify-between gap-2 text-sm">
+        <span class="text-yellow-800 dark:text-yellow-200">
+          <i class="pi pi-info-circle mr-1"></i>
+          Guarda este enlace para volver a esta conversación
+        </span>
+        <p-button
+          [icon]="copiado() ? 'pi pi-check' : 'pi pi-copy'"
+          [label]="copiado() ? 'Copiado' : 'Copiar'"
+          size="small"
+          [text]="true"
+          (onClick)="copiarLink()"
+        />
+      </div>
+    }
+
+      <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+        @for (msg of mensajes(); track msg.id) {
+          @if (msg.emisorTipo === EmisorTipo.SISTEMA) {
+            <div class="text-center text-sm text-muted-color italic py-2">
+              {{ msg.contenido }}
+            </div>
+          } @else {
+            <div
+              class="max-w-[75%] px-4 py-2 rounded-2xl"
+              [ngClass]="{
+                'bg-primary text-white self-end rounded-br-sm': msg.emisorTipo === EmisorTipo.CONTACTO,
+                'bg-surface-200 dark:bg-surface-800 self-start rounded-bl-sm': msg.emisorTipo === EmisorTipo.PROPIETARIO
+              }"
+            >
+              {{ msg.contenido }}
+            </div>
+          }
+        }
+      </div>
+
+      @if (!chatCerrado()) {
+        <div class="p-3 border-t border-surface-200 dark:border-surface-700 flex gap-2">
+          <input
+            pInputText
+            [(ngModel)]="nuevoMensaje"
+            (keyup.enter)="enviarMensaje()"
+            placeholder="Escribe un mensaje..."
+            class="flex-1"
+          />
+          <p-button icon="pi pi-send" (onClick)="enviarMensaje()" />
+        </div>
+      } @else {
+        <div class="p-4 text-center text-sm text-muted-color bg-surface-100 dark:bg-surface-900">
+          Esta conversación está cerrada.
+        </div>
+      }
+    </div>
+  }
+
+  @else {
+    <div class="flex-1 flex flex-col items-center justify-center px-6 text-center gap-3">
+      <i class="pi pi-exclamation-circle text-5xl text-muted-color"></i>
+      <h2 class="text-xl font-semibold">Enlace no válido</h2>
+    </div>
+  }
+</div>

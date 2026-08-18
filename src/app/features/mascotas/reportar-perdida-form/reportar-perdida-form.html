@@ -1,0 +1,35 @@
+<p-dialog
+  [(visible)]="visible"
+  [modal]="true"
+  [style]="{ width: '28rem' }"
+  [header]="'Reportar a ' + (mascota?.nombre ?? '') + ' como perdida'"
+  (onHide)="cerrar()"
+>
+  <div class="flex flex-col gap-4">
+    @if (error()) {
+      <p-message severity="error" [text]="error()!" />
+    }
+
+    <div>
+      <label class="block font-medium mb-2">Teléfono de contacto</label>
+      <input pInputText [(ngModel)]="telefonoContacto" class="w-full" placeholder="Ej. 50212345678" />
+      <small class="text-muted-color">Este número se mostrará en el reporte para que puedan contactarte.</small>
+    </div>
+
+    <div>
+      <label class="block font-medium mb-2">Descripción (opcional)</label>
+      <textarea
+        pTextarea
+        [(ngModel)]="descripcion"
+        rows="3"
+        class="w-full"
+        placeholder="Ej. Se perdió cerca del parque central, llevaba collar rojo"
+      ></textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="cerrar()" />
+    <p-button label="Reportar" severity="warn" [loading]="guardando()" (onClick)="reportar()" />
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,58 @@
+<p-toast />
+
+<div style="max-width: 32rem; margin: 0 auto;">
+  <!-- Encabezado tipo placa -->
+  <div style="background: #14201A; border-radius: 16px 16px 0 0; padding: 2rem 1.5rem; text-align: center;">
+    <div style="position: relative; width: 96px; height: 96px; margin: 0 auto;">
+      <div class="placa-frame" style="width: 96px; height: 96px; border-radius: 50%;">
+        @if (fotoPerfil()) {
+          <img [src]="fotoPerfil()" class="w-full h-full object-cover" style="border-radius: 50%;" />
+        } @else {
+          <div
+            class="w-full h-full flex items-center justify-center"
+            style="background: #25382D; border-radius: 50%; font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.75rem; color: #F2F4F3;"
+          >
+            {{ iniciales }}
+          </div>
+        }
+      </div>
+
+      <label
+        style="position: absolute; bottom: -2px; right: -2px; width: 32px; height: 32px; border-radius: 50%; background: #A8791A; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #14201A;"
+      >
+        <input type="file" accept="image/*" class="hidden" (change)="seleccionarFoto($event)" [disabled]="subiendoFoto()" />
+        @if (subiendoFoto()) {
+          <i class="pi pi-spin pi-spinner" style="color: white; font-size: 0.85rem;"></i>
+        } @else {
+          <i class="pi pi-camera" style="color: white; font-size: 0.85rem;"></i>
+        }
+      </label>
+    </div>
+
+    <h2 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 1.5rem; color: #F2F4F3; margin: 1rem 0 0;">
+      {{ form.nombre }} {{ form.apellido }}
+    </h2>
+  </div>
+
+  <!-- Formulario -->
+  <div style="background: white; border-radius: 0 0 16px 16px; border: 1px solid #ECEEEC; padding: 1.75rem;">
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="block font-medium mb-2" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #14201A;">Nombre</label>
+        <input pInputText [(ngModel)]="form.nombre" class="w-full" />
+      </div>
+
+      <div>
+        <label class="block font-medium mb-2" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #14201A;">Apellido</label>
+        <input pInputText [(ngModel)]="form.apellido" class="w-full" />
+      </div>
+
+      <div>
+        <label class="block font-medium mb-2" style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #14201A;">Teléfono</label>
+        <input pInputText [(ngModel)]="form.telefono" class="w-full" />
+      </div>
+
+      <p-button label="Guardar cambios" [loading]="guardando()" (onClick)="guardar()" styleClass="w-full" />
+    </div>
+  </div>
+</div>

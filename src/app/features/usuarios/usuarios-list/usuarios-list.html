@@ -1,0 +1,160 @@
+<div class="card">
+  <p-toolbar styleClass="mb-4">
+    <ng-template pTemplate="start">
+      <h5 class="m-0">Usuarios</h5>
+    </ng-template>
+    <ng-template pTemplate="end">
+      <p-iconfield class="mr-2">
+        <p-inputicon class="pi pi-search" />
+        <input
+          pInputText
+          type="text"
+          placeholder="Buscar..."
+          (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+        />
+      </p-iconfield>
+      <p-button label="Nuevo usuario" icon="pi pi-plus" (onClick)="nuevoUsuario()" />
+    </ng-template>
+  </p-toolbar>
+
+  <p-table
+    #dt
+    [value]="usuarios()"
+    [loading]="cargando()"
+    [paginator]="true"
+    [rows]="10"
+    [globalFilterFields]="['nombre', 'apellido', 'email']"
+    responsiveLayout="scroll"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th></th>
+        <th>Nombre</th>
+        <th>Email</th>
+        <th>Rol</th>
+        <th>Estado de cuenta</th>
+        <th></th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-usuario>
+      <tr>
+        <td>
+          <div class="placa-frame" style="width: 36px; height: 36px; border-radius: 50%">
+            @if (usuario.fotoPerfil) {
+              <img
+                [src]="usuario.fotoPerfil"
+                class="w-full h-full object-cover"
+                style="border-radius: 50%"
+              />
+            } @else {
+              <div
+                class="w-full h-full flex items-center justify-center bg-surface-200 dark:bg-surface-700"
+                style="
+                  border-radius: 50%;
+                  font-family: 'Fraunces', serif;
+                  font-weight: 600;
+                  font-size: 0.85rem;
+                "
+              >
+                {{ usuario.nombre[0] }}{{ usuario.apellido[0] }}
+              </div>
+            }
+          </div>
+        </td>
+        <td>{{ usuario.nombre }} {{ usuario.apellido }}</td>
+        <td>{{ usuario.email }}</td>
+        <td>
+          <p-tag
+            [severity]="usuario.rol === Rol.ADMIN ? 'info' : 'secondary'"
+            [value]="usuario.rol"
+            styleClass="capitalize"
+          />
+        </td>
+        <td>
+          <p-tag
+            [severity]="severidadEstado(usuario.estadoCuenta)"
+            [value]="usuario.estadoCuenta"
+            styleClass="capitalize"
+          />
+        </td>
+        <td class="flex gap-2 justify-end">
+          @if (usuario.estadoCuenta === EstadoCuenta.PENDIENTE) {
+            <p-button
+              icon="pi pi-check"
+              severity="success"
+              [text]="true"
+              pTooltip="Validar cuenta"
+              (onClick)="validar(usuario, EstadoCuenta.VALIDADO)"
+            />
+            <p-button
+              icon="pi pi-times"
+              severity="danger"
+              [text]="true"
+              pTooltip="Rechazar cuenta"
+              (onClick)="validar(usuario, EstadoCuenta.RECHAZADO)"
+            />
+          }
+          <p-button
+            icon="pi pi-key"
+            severity="secondary"
+            [text]="true"
+            pTooltip="Restablecer contraseña"
+            (onClick)="abrirResetPassword(usuario)"
+          />
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [text]="true"
+            pTooltip="Desactivar"
+            (onClick)="desactivar(usuario)"
+          />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="5" class="text-center py-6">No hay usuarios registrados todavía.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <p-dialog
+    [(visible)]="mostrarResetPassword"
+    [modal]="true"
+    [style]="{ width: '24rem' }"
+    header="Restablecer contraseña"
+  >
+    <div class="flex flex-col gap-3" style="min-height: 6rem">
+      <p class="text-sm text-muted-color">
+        Define una contraseña temporal para {{ usuarioParaReset()?.nombre }}. Comunícala por un
+        canal seguro (no por este sistema).
+      </p>
+      <input
+        pInputText
+        type="password"
+        [(ngModel)]="nuevaPassword"
+        placeholder="Nueva contraseña (mín. 8 caracteres)"
+        class="w-full"
+      />
+    </div>
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancelar"
+        severity="secondary"
+        [text]="true"
+        (onClick)="mostrarResetPassword.set(false)"
+      />
+      <p-button
+        label="Restablecer"
+        [disabled]="nuevaPassword.length < 8"
+        (onClick)="confirmarReset()"
+      />
+    </ng-template>
+  </p-dialog>
+</div>
+
+<app-usuario-form
+  [visible]="mostrarFormulario()"
+  (visibleChange)="mostrarFormulario.set($event)"
+  (creado)="alCrear()"
+/>

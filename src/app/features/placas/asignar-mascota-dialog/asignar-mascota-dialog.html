@@ -1,0 +1,27 @@
+<p-dialog
+  [visible]="visible"
+  (visibleChange)="cerrar()"
+  [modal]="true"
+  [style]="{ width: '32rem' }"
+  header="Asignar mascota a la placa"
+>
+  @if (placa) {
+    <div class="flex flex-col gap-4" style="min-height: 10rem">
+      @if (error()) {
+        <p-message severity="error" [text]="error()!" />
+      }
+
+      <app-mascota-autocomplete
+        label="Mascota"
+        [usuarioId]="placa.usuarioId"
+        [mascotaSeleccionada]="mascotaSeleccionada"
+        (mascotaSeleccionadaChange)="mascotaSeleccionada = $event"
+      />
+    </div>
+
+    <ng-template pTemplate="footer">
+      <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="cerrar()" />
+      <p-button label="Asignar" [loading]="guardando()" (onClick)="asignar()" />
+    </ng-template>
+  }
+</p-dialog>

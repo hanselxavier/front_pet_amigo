@@ -1,0 +1,31 @@
+<!-- placa-form.html -->
+<p-dialog [(visible)]="visible" [modal]="true" [style]="{ width: '28rem' }" header="Generar nueva placa" (onHide)="cerrar()">
+  <div class="flex flex-col gap-4">
+    @if (error()) {
+      <p-message severity="error" [text]="error()!" />
+    }
+
+    <app-usuario-autocomplete
+      label="Usuario dueño"
+      [usuarioSeleccionado]="usuarioSeleccionado"
+      (usuarioSeleccionadoChange)="alSeleccionarUsuario($event)"
+    />
+
+    <app-mascota-autocomplete
+      label="Mascota (opcional)"
+      [usuarioId]="usuarioId"
+      [mascotaSeleccionada]="mascotaSeleccionada"
+      (mascotaSeleccionadaChange)="alSeleccionarMascota($event)"
+    />
+
+    <div>
+      <label class="block font-medium mb-2">Plan</label>
+      <p-select [options]="opcionesPlan" [(ngModel)]="plan" optionLabel="label" optionValue="value" class="w-full" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="cerrar()" />
+    <p-button label="Generar" [loading]="guardando()" (onClick)="generar()" />
+  </ng-template>
+</p-dialog>

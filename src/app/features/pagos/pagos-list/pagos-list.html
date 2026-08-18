@@ -1,0 +1,54 @@
+<!-- pagos-list.html -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+  <div class="card md:col-span-1 flex flex-col justify-center items-center py-6">
+    <span class="text-muted-color text-sm">Total ingresado</span>
+    <span class="text-3xl font-bold text-primary mt-1">
+      {{ totalGeneral() | currency: 'GTQ' : 'symbol' : '1.2-2' }}
+    </span>
+  </div>
+
+  <div class="card md:col-span-3">
+    <p-toolbar styleClass="mb-4">
+      <ng-template pTemplate="start">
+        <h5 class="m-0">Historial de pagos</h5>
+      </ng-template>
+      <ng-template pTemplate="end">
+        <p-button label="Registrar pago" icon="pi pi-plus" (onClick)="nuevoPago()" />
+      </ng-template>
+    </p-toolbar>
+
+    <p-table [value]="pagos()" [loading]="cargando()" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Fecha</th>
+          <th>Usuario</th>
+          <th>Concepto</th>
+          <th>Método</th>
+          <th class="text-right">Monto</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-pago>
+        <tr>
+          <td>{{ pago.fechaPago | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td>{{ pago.usuario?.nombre }} {{ pago.usuario?.apellido }}</td>
+          <td>{{ pago.concepto }}</td>
+          <td>
+            <p-tag [severity]="severidadMetodo(pago.metodoPago)" [value]="pago.metodoPago" styleClass="capitalize" />
+          </td>
+          <td class="text-right font-medium">{{ pago.monto | currency: 'GTQ' : 'symbol' : '1.2-2' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="5" class="text-center py-6">No hay pagos registrados todavía.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<app-pago-form
+  [visible]="mostrarFormulario()"
+  (visibleChange)="mostrarFormulario.set($event)"
+  (registrado)="alRegistrar()"
+/>

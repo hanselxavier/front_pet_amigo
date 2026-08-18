@@ -1,0 +1,115 @@
+<div class="flex flex-col gap-4">
+  <div>
+    <h4 class="mb-1">Hola, {{ nombreUsuario() }} 👋</h4>
+    <p class="text-muted-color m-0">
+      {{ esAdmin() ? 'Resumen general del sistema' : 'Resumen de tus mascotas y actividad' }}
+    </p>
+  </div>
+
+  <!-- Tarjetas de métricas -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+  <div class="card flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <span class="text-muted-color text-sm">{{ esAdmin() ? 'Total mascotas' : 'Mis mascotas' }}</span>
+      <span class="flex items-center justify-center rounded-lg bg-green-100 dark:bg-green-900" style="width: 32px; height: 32px;">
+        <i class="pi pi-heart text-green-800 dark:text-green-100" style="font-size: 0.9rem;"></i>
+      </span>
+    </div>
+    <span class="text-3xl font-bold">{{ totalMascotas() }}</span>
+  </div>
+
+  <div class="card flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <span class="text-muted-color text-sm">Perdidas ahora</span>
+      <span class="flex items-center justify-center rounded-lg bg-red-100 dark:bg-red-900" style="width: 32px; height: 32px;">
+        <i class="pi pi-flag text-red-800 dark:text-red-100" style="font-size: 0.9rem;"></i>
+      </span>
+    </div>
+    <span class="text-3xl font-bold text-red-500">{{ mascotasPerdidas() }}</span>
+  </div>
+
+  <div class="card flex flex-col gap-2">
+    <div class="flex items-center justify-between">
+      <span class="text-muted-color text-sm">{{ esAdmin() ? 'Total placas' : 'Mis placas' }}</span>
+      <span class="flex items-center justify-center rounded-lg bg-green-100 dark:bg-green-900" style="width: 32px; height: 32px;">
+        <i class="pi pi-qrcode text-green-800 dark:text-green-100" style="font-size: 0.9rem;"></i>
+      </span>
+    </div>
+    <span class="text-3xl font-bold">{{ totalPlacas() }}</span>
+  </div>
+
+  @if (esAdmin()) {
+    <div class="card flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="text-muted-color text-sm">Ingresos totales</span>
+        <span class="flex items-center justify-center rounded-lg bg-amber-100 dark:bg-amber-900" style="width: 32px; height: 32px;">
+          <i class="pi pi-dollar text-amber-800 dark:text-amber-100" style="font-size: 0.9rem;"></i>
+        </span>
+      </div>
+      <span class="text-3xl font-bold text-green-500">
+        {{ totalIngresos() | currency: 'GTQ' : 'symbol' : '1.2-2' }}
+      </span>
+    </div>
+  } @else {
+    <div class="card flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="text-muted-color text-sm">Reportes activos</span>
+        <span class="flex items-center justify-center rounded-lg bg-orange-100 dark:bg-orange-900" style="width: 32px; height: 32px;">
+          <i class="pi pi-exclamation-circle text-orange-800 dark:text-orange-100" style="font-size: 0.9rem;"></i>
+        </span>
+      </div>
+      <span class="text-3xl font-bold text-orange-500">{{ reportesActivos().length }}</span>
+    </div>
+  }
+</div>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <!-- Gráfica de planes (solo admin) -->
+    @if (esAdmin()) {
+      <div class="card">
+        <h6 class="mb-3">Placas por plan</h6>
+        @if (totalPlacas() > 0) {
+          <p-chart type="doughnut" [data]="chartData()" [options]="chartOptions" [style]="{ width: '100%' }" />
+        } @else {
+          <p class="text-muted-color text-sm">Aún no hay placas generadas.</p>
+        }
+        @if (placasSinAsignar() > 0) {
+          <p class="text-sm text-muted-color mt-3">
+            <i class="pi pi-info-circle mr-1"></i>
+            {{ placasSinAsignar() }} placa(s) sin mascota asignada.
+          </p>
+        }
+      </div>
+    }
+
+    <!-- Mascotas perdidas activas -->
+    <div class="card" [ngClass]="esAdmin() ? 'md:col-span-2' : 'md:col-span-3'">
+      <div class="flex items-center justify-between mb-3">
+        <h6 class="m-0">Mascotas perdidas ahora</h6>
+        <a routerLink="/app/reportes" class="text-sm text-primary cursor-pointer">Ver todos</a>
+      </div>
+
+      @if (reportesActivos().length === 0) {
+        <p class="text-muted-color text-sm py-4 text-center">
+          No hay mascotas perdidas en este momento. 🎉
+        </p>
+      } @else {
+        <div class="flex flex-col gap-2">
+          @for (reporte of reportesActivos(); track reporte.id) {
+            <div class="flex items-center justify-between p-3 rounded-lg bg-surface-100 dark:bg-surface-800">
+              <div>
+                <span class="font-medium">{{ reporte.mascota?.nombre }}</span>
+                @if (esAdmin()) {
+                  <span class="text-sm text-muted-color ml-2">
+                    ({{ reporte.usuario?.nombre }} {{ reporte.usuario?.apellido }})
+                  </span>
+                }
+              </div>
+              <p-tag severity="danger" value="Perdida" />
+            </div>
+          }
+        </div>
+      }
+    </div>
+  </div>
+</div>

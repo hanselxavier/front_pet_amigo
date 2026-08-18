@@ -1,0 +1,190 @@
+<div class="min-h-screen bg-surface-50 dark:bg-surface-950 flex flex-col">
+  @if (cargando()) {
+    <div class="flex-1 flex items-center justify-center">
+      <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+    </div>
+  } @else if (error()) {
+    <div class="flex-1 flex flex-col items-center justify-center px-6 text-center gap-3">
+      <i class="pi pi-exclamation-triangle text-5xl text-orange-500"></i>
+      <h2 class="text-xl font-semibold">No pudimos cargar esta placa</h2>
+      <p class="text-muted-color">{{ error() }}</p>
+    </div>
+  } @else if (info(); as data) {
+    @if (data.estaPerdida) {
+      <div class="flex-1 flex flex-col" style="background: #14201a">
+        <div class="flex items-center justify-center gap-2 py-3" style="background: #e4572e">
+          <i class="pi pi-flag" style="color: #fcebeb; font-size: 0.85rem"></i>
+          <span
+            style="
+              color: #fcebeb;
+              font-family: 'Inter', sans-serif;
+              font-weight: 500;
+              font-size: 0.85rem;
+              letter-spacing: 0.03em;
+              text-transform: uppercase;
+            "
+          >
+            Reportada como perdida
+          </span>
+        </div>
+
+        <div class="flex-1 flex flex-col items-center px-6 py-12 gap-6">
+          <div class="placa-frame" style="width: 200px; height: 200px">
+            @if (data.mascota.fotoPrincipal) {
+              <img
+                [src]="data.mascota.fotoPrincipal"
+                [alt]="data.mascota.nombre"
+                class="w-full h-full object-cover"
+              />
+            } @else {
+              <div
+                class="w-full h-full flex items-center justify-center"
+                style="background: #25382d"
+              >
+                <i class="pi pi-image" style="color: #5c6b62; font-size: 2.5rem"></i>
+              </div>
+            }
+          </div>
+
+          <div class="text-center">
+            <h1
+              style="
+                font-family: 'Fraunces', serif;
+                font-weight: 600;
+                font-size: 2.25rem;
+                color: #f2f4f3;
+                margin: 0;
+              "
+            >
+              {{ data.mascota.nombre }}
+            </h1>
+            <div style="width: 40px; height: 2px; background: #a8791a; margin: 12px auto"></div>
+            <p
+              style="
+                color: #9ba69f;
+                font-family: 'Inter', sans-serif;
+                font-size: 0.95rem;
+                max-width: 280px;
+                line-height: 1.6;
+              "
+            >
+              Si la encontraste, contacta directamente a su dueño. No necesitas crear una cuenta.
+            </p>
+          </div>
+
+          <button
+            (click)="irAChat()"
+            style="
+              width: 100%;
+              max-width: 280px;
+              background: #e4572e;
+              color: #fcebeb;
+              border: none;
+              border-radius: 10px;
+              padding: 14px;
+              font-family: 'Inter', sans-serif;
+              font-weight: 500;
+              font-size: 1rem;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 8px;
+              cursor: pointer;
+            "
+          >
+            <i class="pi pi-comment"></i>
+            Contactar al dueño
+          </button>
+        </div>
+      </div>
+    } @else {
+  <div class="flex-1 flex flex-col" style="background: #F2F4F3;">
+    <div class="flex items-center justify-center gap-2 py-3" style="background: #1F6D4C;">
+      <i class="pi pi-check-circle" style="color: #EAF3DE; font-size: 0.85rem;"></i>
+      <span style="color: #EAF3DE; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.85rem; letter-spacing: 0.03em; text-transform: uppercase;">
+        Esta mascota está en casa
+      </span>
+    </div>
+
+    <div class="px-6 py-10 flex flex-col items-center gap-6">
+
+      <!-- Foto principal -->
+      <div class="placa-frame" style="width: 220px; height: 220px;">
+        @if (data.mascota.fotos.length > 0) {
+          <img
+            [src]="data.mascota.fotos[fotoActivaIndex()].urlFoto"
+            [alt]="data.mascota.nombre"
+            class="w-full h-full object-cover"
+          />
+        } @else {
+          <div class="w-full h-full flex items-center justify-center" style="background: #DDE2DE;">
+            <i class="pi pi-image" style="color: #8B958F; font-size: 2.5rem;"></i>
+          </div>
+        }
+      </div>
+
+      <!-- Miniaturas -->
+      @if (data.mascota.fotos.length > 1) {
+        <div class="flex gap-2">
+          @for (foto of data.mascota.fotos; track foto.id; let i = $index) {
+            <button
+              (click)="seleccionarFoto(i)"
+              style="width: 44px; height: 44px; border-radius: 8px; overflow: hidden; padding: 0; cursor: pointer; transition: opacity 0.15s;"
+              [style.border]="fotoActivaIndex() === i ? '2px solid #A8791A' : '2px solid transparent'"
+              [style.opacity]="fotoActivaIndex() === i ? '1' : '0.55'"
+            >
+              <img [src]="foto.urlFoto" class="w-full h-full object-cover" />
+            </button>
+          }
+        </div>
+      }
+
+      <!-- Nombre y especie -->
+      <div class="text-center">
+        <h1 style="font-family: 'Fraunces', serif; font-weight: 600; font-size: 2.25rem; color: #14201A; margin: 0;">
+          {{ data.mascota.nombre }}
+        </h1>
+        <div style="width: 40px; height: 2px; background: #A8791A; margin: 12px auto;"></div>
+        <span
+          style="display: inline-block; background: #C5DFD2; color: #124430; font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.8rem; padding: 4px 14px; border-radius: 20px; text-transform: capitalize;"
+        >
+          {{ data.mascota.especie }}
+        </span>
+      </div>
+
+      <!-- Ficha de datos -->
+      <div style="width: 100%; max-width: 340px; background: #FFFFFF; border-radius: 14px; border: 1px solid #DDE2DE; overflow: hidden;">
+        @if (data.mascota.raza) {
+          <div class="flex justify-between items-center px-5 py-3" style="border-bottom: 1px solid #ECEEEC;">
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #6B756F;">Raza</span>
+            <span style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.9rem; color: #14201A;">{{ data.mascota.raza }}</span>
+          </div>
+        }
+        <div class="flex justify-between items-center px-5 py-3" style="border-bottom: 1px solid #ECEEEC;">
+          <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #6B756F;">Sexo</span>
+          <span style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.9rem; color: #14201A; text-transform: capitalize;">{{ data.mascota.sexo }}</span>
+        </div>
+        @if (data.mascota.color) {
+          <div class="flex justify-between items-center px-5 py-3" [style.border-bottom]="data.mascota.senasParticulares ? '1px solid #ECEEEC' : 'none'">
+            <span style="font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #6B756F;">Color</span>
+            <span style="font-family: 'Inter', sans-serif; font-weight: 500; font-size: 0.9rem; color: #14201A;">{{ data.mascota.color }}</span>
+          </div>
+        }
+        @if (data.mascota.senasParticulares) {
+          <div class="px-5 py-4">
+            <span style="display: block; font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #6B756F; margin-bottom: 4px;">Señas particulares</span>
+            <p style="font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #14201A; margin: 0; line-height: 1.5;">
+              {{ data.mascota.senasParticulares }}
+            </p>
+          </div>
+        }
+      </div>
+
+      <p style="font-family: 'Inter', sans-serif; font-size: 0.8rem; color: #8B958F; text-align: center; margin-top: 4px;">
+        Identificada con placa Control de Mascotas
+      </p>
+    </div>
+  </div>
+}
+  }
+</div>

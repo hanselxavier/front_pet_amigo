@@ -1,0 +1,62 @@
+<!-- chat-conversacion.html -->
+<div class="flex flex-col h-full">
+  <div class="pb-3 mb-3 border-b border-surface-200 dark:border-surface-700">
+    <h6 class="m-0">{{ chat.reportePerdida?.mascota?.nombre ?? 'Mascota' }}</h6>
+    <p class="text-sm text-muted-color m-0">
+      {{ chat.contactoNombre }} · {{ chat.contactoTelefono }}
+    </p>
+  </div>
+
+  <div class="flex-1 overflow-y-auto flex flex-col gap-3 px-1" style="max-height: 55vh">
+    @if (cargando()) {
+      <div class="text-center py-6">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
+    } @else {
+      @for (msg of mensajes(); track msg.id) {
+  @if (msg.emisorTipo === EmisorTipo.SISTEMA) {
+    <div class="text-center text-sm text-muted-color italic py-2">
+      {{ msg.contenido }}
+    </div>
+  } @else {
+    <div class="flex flex-col" [ngClass]="msg.emisorTipo === EmisorTipo.PROPIETARIO ? 'items-end' : 'items-start'">
+      @if (msg.emisorTipo === EmisorTipo.PROPIETARIO && !esDelDuenoReal(msg)) {
+        <span class="text-xs text-orange-500 font-medium mb-0.5 mr-1">
+          Soporte ({{ msg.emisorUsuario?.nombre }})
+        </span>
+      }
+      <div
+        class="max-w-[75%] px-4 py-2 rounded-2xl"
+        [ngClass]="{
+          'bg-primary text-primary-contrast rounded-br-sm': msg.emisorTipo === EmisorTipo.PROPIETARIO && esDelDuenoReal(msg),
+          'bg-orange-500 text-white rounded-br-sm': msg.emisorTipo === EmisorTipo.PROPIETARIO && !esDelDuenoReal(msg),
+          'bg-surface-200 dark:bg-surface-800 rounded-bl-sm': msg.emisorTipo === EmisorTipo.CONTACTO
+        }"
+      >
+        {{ msg.contenido }}
+      </div>
+    </div>
+  }
+}
+    }
+  </div>
+
+  @if (chat.estado === EstadoChat.ACTIVO) {
+    <div class="flex gap-2 pt-3 mt-3 border-t border-surface-200 dark:border-surface-700">
+      <input
+        pInputText
+        [(ngModel)]="nuevoMensaje"
+        (keyup.enter)="enviar()"
+        placeholder="Escribe un mensaje..."
+        class="flex-1"
+      />
+      <p-button icon="pi pi-send" [loading]="enviando()" (onClick)="enviar()" />
+    </div>
+  } @else {
+    <div
+      class="pt-3 mt-3 border-t border-surface-200 dark:border-surface-700 text-center text-sm text-muted-color"
+    >
+      Esta conversación está cerrada.
+    </div>
+  }
+</div>
