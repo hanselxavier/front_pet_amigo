@@ -25,6 +25,7 @@ export interface PlacaPublicaPerdida {
   };
   reportePerdidaId: number;
   descripcion: string | null;
+  telefonoContacto: string | null;
 }
 
 export type PlacaPublicaResponse = PlacaPublicaNoPerdida | PlacaPublicaPerdida;

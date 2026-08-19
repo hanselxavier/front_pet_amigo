@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ReportePerdidaService } from '../../../core/services/reporte-perdida.service';
 import { Mascota } from '../../../core/models/mascota.model';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-reportar-perdida-form',
@@ -20,6 +21,7 @@ import { Mascota } from '../../../core/models/mascota.model';
     TextareaModule,
     ButtonModule,
     MessageModule,
+    CheckboxModule
   ],
   templateUrl: './reportar-perdida-form.html',
 })
@@ -38,9 +40,12 @@ export class ReportarPerdidaFormComponent implements OnChanges {
   telefonoContacto = '';
   descripcion = '';
 
+  telefonoPublico = false;
+
   ngOnChanges(): void {
     this.telefonoContacto = '';
     this.descripcion = '';
+    this.telefonoPublico = false;
     this.error.set(null);
   }
 
@@ -65,6 +70,7 @@ export class ReportarPerdidaFormComponent implements OnChanges {
         mascotaId: this.mascota.id,
         telefonoContacto: this.telefonoContacto,
         descripcion: this.descripcion || undefined,
+        telefonoPublico: this.telefonoPublico,
       })
       .subscribe({
         next: () => {

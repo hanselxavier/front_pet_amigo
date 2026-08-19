@@ -23,6 +23,7 @@ export interface CrearReporteDto {
   mascotaId: number;
   telefonoContacto: string;
   descripcion?: string;
+  telefonoPublico?: boolean;
 }
 
 export interface ResolverReporteDto {

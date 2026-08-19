@@ -100,6 +100,32 @@
                 </p>
               </div>
             }
+
+            @if (data.telefonoContacto) {
+              <a
+                [href]="'tel:' + data.telefonoContacto"
+                style="
+                  width: 100%;
+                  max-width: 280px;
+                  background: #25382d;
+                  color: #f2f4f3;
+                  border: 1px solid #3a4d40;
+                  border-radius: 10px;
+                  padding: 12px;
+                  font-family: 'Inter', sans-serif;
+                  font-weight: 500;
+                  font-size: 0.9rem;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  gap: 8px;
+                  text-decoration: none;
+                "
+              >
+                <i class="pi pi-phone"></i>
+                Llamar al {{ data.telefonoContacto }}
+              </a>
+            }
           </div>
 
           <button

@@ -12,8 +12,15 @@
 
     <div>
       <label class="block font-medium mb-2">Teléfono de contacto</label>
-      <input pInputText [(ngModel)]="telefonoContacto" class="w-full" placeholder="Ej. 50212345678" />
-      <small class="text-muted-color">Este número se mostrará en el reporte para que puedan contactarte.</small>
+      <input
+        pInputText
+        [(ngModel)]="telefonoContacto"
+        class="w-full"
+        placeholder="Ej. 50212345678"
+      />
+      <small class="text-muted-color"
+        >Este número se mostrará en el reporte para que puedan contactarte.</small
+      >
     </div>
 
     <div>
@@ -25,6 +32,13 @@
         class="w-full"
         placeholder="Ej. Se perdió cerca del parque central, llevaba collar rojo"
       ></textarea>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <p-checkbox [(ngModel)]="telefonoPublico" binary inputId="telPublico" />
+      <label for="telPublico" class="text-sm">
+        Mostrar mi teléfono públicamente en el QR (además del chat)
+      </label>
     </div>
   </div>
 
