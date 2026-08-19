@@ -24,6 +24,7 @@ export interface PlacaPublicaPerdida {
     fotoPrincipal: string | null;
   };
   reportePerdidaId: number;
+  descripcion: string | null;
 }
 
 export type PlacaPublicaResponse = PlacaPublicaNoPerdida | PlacaPublicaPerdida;
