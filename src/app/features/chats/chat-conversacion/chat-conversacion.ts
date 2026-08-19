@@ -1,10 +1,11 @@
-import { Component, Input, Output, EventEmitter, inject, signal, OnChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, signal, OnChanges, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { ChatService } from '../../../core/services/chat.service';
 import { Chat, Mensaje, EmisorTipo, EstadoChat } from '../../../core/models/chat.model';
+import { interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-chat-conversacion',
@@ -12,8 +13,9 @@ import { Chat, Mensaje, EmisorTipo, EstadoChat } from '../../../core/models/chat
   imports: [CommonModule, FormsModule, InputTextModule, ButtonModule],
   templateUrl: './chat-conversacion.html',
 })
-export class ChatConversacionComponent implements OnChanges {
+export class ChatConversacionComponent implements OnChanges, OnDestroy {
   private chatService = inject(ChatService);
+  private pollingSub?: Subscription;
 
   @Input({ required: true }) chat!: Chat;
   @Output() mensajeEnviado = new EventEmitter<void>();
@@ -29,7 +31,12 @@ export class ChatConversacionComponent implements OnChanges {
   ngOnChanges(): void {
     if (this.chat) {
       this.cargarMensajes();
+      this.iniciarPolling();
     }
+  }
+
+  ngOnDestroy(): void {
+    this.detenerPolling();
   }
 
   private cargarMensajes(): void {
@@ -61,7 +68,23 @@ export class ChatConversacionComponent implements OnChanges {
   }
 
   esDelDuenoReal(msg: Mensaje): boolean {
-  const duenoId = this.chat.reportePerdida?.usuario?.id;
-  return msg.emisorUsuarioId === duenoId;
-}
+    const duenoId = this.chat.reportePerdida?.usuario?.id;
+    return msg.emisorUsuarioId === duenoId;
+  }
+
+  private iniciarPolling(): void {
+    this.detenerPolling(); // por si ya había uno corriendo de otro chat
+
+    if (this.chat.estado === EstadoChat.CERRADO) return; // no vale la pena sondear un chat cerrado
+
+    this.pollingSub = interval(5000)
+      .pipe(switchMap(() => this.chatService.listarMensajes(this.chat.id)))
+      .subscribe({
+        next: (data) => this.mensajes.set(data),
+      });
+  }
+
+  private detenerPolling(): void {
+    this.pollingSub?.unsubscribe();
+  }
 }

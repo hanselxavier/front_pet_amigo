@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, computed, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -10,6 +10,7 @@ import { TagModule } from 'primeng/tag';
 import { ChatGuestService } from '../../../core/services/chat-guest.service';
 import { ChatStorageService } from '../../../core/services/chat-storage.service';
 import { Chat, Mensaje, EmisorTipo, EstadoChat } from '../../../core/models/chat.model';
+import { interval, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-chat-guest',
@@ -25,12 +26,14 @@ import { Chat, Mensaje, EmisorTipo, EstadoChat } from '../../../core/models/chat
   ],
   templateUrl: './chat-guest.html',
 })
-export class ChatGuest implements OnInit {
+export class ChatGuest implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private chatService = inject(ChatGuestService);
   private chatStorage = inject(ChatStorageService);
 
+  private pollingSub?: Subscription;
+  
   reportePerdidaId: number | null = null;
   codigoQr: string | null = null;
   nombreForm = '';
@@ -71,11 +74,16 @@ export class ChatGuest implements OnInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.detenerPolling();
+  }
+
   private cargarChatExistente(): void {
     this.chatService.obtenerPorToken(this.token).subscribe({
       next: (chat) => {
         this.chat.set(chat);
         this.cargarMensajes(); // ← ya no necesita el chatId, usa this.token
+        this.iniciarPolling();
       },
       error: () => this.cargando.set(false),
     });
@@ -142,5 +150,20 @@ export class ChatGuest implements OnInit {
       this.copiado.set(true);
       setTimeout(() => this.copiado.set(false), 2000);
     });
+  }
+
+  private iniciarPolling(): void {
+    this.detenerPolling();
+    if (this.chatCerrado()) return;
+
+    this.pollingSub = interval(5000)
+      .pipe(switchMap(() => this.chatService.listarMensajes(this.token)))
+      .subscribe({
+        next: (data) => this.mensajes.set(data),
+      });
+  }
+
+  private detenerPolling(): void {
+    this.pollingSub?.unsubscribe();
   }
 }
