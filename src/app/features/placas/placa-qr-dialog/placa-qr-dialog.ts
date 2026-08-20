@@ -1,10 +1,12 @@
-import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { Placa } from '../../../core/models/placa.model';
 import { QrCodeView } from '../../../shared/qr-code-view/qr-code-view';
 import { environment } from '../../../../environments/environment';
+import { Auth } from '../../../core/services/auth';
+import { Rol } from '../../../core/models/usuario.model';
 
 @Component({
   selector: 'app-placa-qr-dialog',
@@ -15,9 +17,13 @@ import { environment } from '../../../../environments/environment';
 export class PlacaQrDialogComponent {
   @ViewChild(QrCodeView) qrCodeView!: QrCodeView;
 
+  private auth = inject(Auth);
+
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
   @Input() placa: Placa | null = null;
+
+  esAdmin = computed(() => this.auth.usuario()?.rol === Rol.ADMIN);
 
   get urlPublica(): string {
     if (!this.placa) return '';

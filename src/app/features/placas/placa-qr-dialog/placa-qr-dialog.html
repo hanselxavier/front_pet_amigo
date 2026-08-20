@@ -7,14 +7,16 @@
 >
   @if (placa) {
     <div class="flex flex-col items-center gap-4">
-      <app-qr-code-view [valor]="urlPublica" [tamano]="220" />
-      <p class="text-sm text-muted-color text-center break-all">{{ urlPublica }}</p>
+  <app-qr-code-view [valor]="urlPublica" [tamano]="220" />
+  <p class="text-sm text-muted-color text-center break-all">{{ urlPublica }}</p>
 
-      <div class="flex flex-col gap-2 w-full">
-        <p-button label="Descargar SVG (grabado láser)" icon="pi pi-download" (onClick)="descargarSvg()" styleClass="w-full" />
-        <p-button label="Descargar PNG alta resolución" icon="pi pi-image" severity="secondary" [outlined]="true" (onClick)="descargarPng()" styleClass="w-full" />
-        <p-button label="Imprimir" icon="pi pi-print" severity="secondary" [text]="true" (onClick)="imprimir()" styleClass="w-full" />
-      </div>
+  @if (esAdmin()) {
+    <div class="flex flex-col gap-2 w-full">
+      <p-button label="Descargar SVG (grabado láser)" icon="pi pi-download" (onClick)="descargarSvg()" styleClass="w-full" />
+      <p-button label="Descargar PNG alta resolución" icon="pi pi-image" severity="secondary" [outlined]="true" (onClick)="descargarPng()" styleClass="w-full" />
+      <p-button label="Imprimir" icon="pi pi-print" severity="secondary" [text]="true" (onClick)="imprimir()" styleClass="w-full" />
     </div>
+  }
+</div>
   }
 </p-dialog>
