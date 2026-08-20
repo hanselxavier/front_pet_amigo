@@ -32,4 +32,21 @@ export class QrCodeView implements OnChanges, AfterViewInit {
       margin: 1,
     });
   }
+
+  /** Genera un SVG vectorial puro del QR, ideal para grabado láser */
+  async obtenerSvg(): Promise<string> {
+    return QRCode.toString(this.valor, {
+      type: 'svg',
+      margin: 2,
+    });
+  }
+
+  /** Genera un PNG de alta resolución (por defecto 1000x1000px) */
+  async obtenerPngAltaResolucion(tamanoPx: number = 1000): Promise<string> {
+    return QRCode.toDataURL(this.valor, {
+      width: tamanoPx,
+      margin: 2,
+      type: 'image/png',
+    });
+  }
 }

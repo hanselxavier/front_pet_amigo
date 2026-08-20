@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -13,6 +13,8 @@ import { environment } from '../../../../environments/environment';
   templateUrl: './placa-qr-dialog.html',
 })
 export class PlacaQrDialogComponent {
+  @ViewChild(QrCodeView) qrCodeView!: QrCodeView;
+
   @Input() visible = false;
   @Output() visibleChange = new EventEmitter<boolean>();
   @Input() placa: Placa | null = null;
@@ -29,5 +31,28 @@ export class PlacaQrDialogComponent {
 
   imprimir(): void {
     window.print();
+  }
+
+  async descargarSvg(): Promise<void> {
+    const svg = await this.qrCodeView.obtenerSvg();
+    const blob = new Blob([svg], { type: 'image/svg+xml' });
+    this.descargarBlob(blob, `placa-${this.placa?.codigoQr}.svg`);
+  }
+
+  async descargarPng(): Promise<void> {
+    const dataUrl = await this.qrCodeView.obtenerPngAltaResolucion(1000);
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = `placa-${this.placa?.codigoQr}.png`;
+    link.click();
+  }
+
+  private descargarBlob(blob: Blob, nombreArchivo: string): void {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = nombreArchivo;
+    link.click();
+    URL.revokeObjectURL(url);
   }
 }
