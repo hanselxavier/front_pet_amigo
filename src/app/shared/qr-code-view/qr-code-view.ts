@@ -29,7 +29,7 @@ export class QrCodeView implements OnChanges, AfterViewInit {
     if (!this.valor || !this.canvasRef) return;
     QRCode.toCanvas(this.canvasRef.nativeElement, this.valor, {
       width: this.tamano,
-      margin: 1,
+      margin: 4,
     });
   }
 
@@ -37,7 +37,7 @@ export class QrCodeView implements OnChanges, AfterViewInit {
   async obtenerSvg(): Promise<string> {
     return QRCode.toString(this.valor, {
       type: 'svg',
-      margin: 2,
+      margin: 4,
     });
   }
 
@@ -45,7 +45,7 @@ export class QrCodeView implements OnChanges, AfterViewInit {
   async obtenerPngAltaResolucion(tamanoPx: number = 1000): Promise<string> {
     return QRCode.toDataURL(this.valor, {
       width: tamanoPx,
-      margin: 2,
+      margin: 4,
       type: 'image/png',
     });
   }
